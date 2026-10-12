@@ -15,7 +15,7 @@
     "dist/",
     "node_modules/",
     "apps/api/drizzle/",
-    "apps/api/src/db/schema/auth.ts"
+    "apps/api/src/shared/db/schema/auth.ts"
   ],
   "rules": {
     "react/react-in-jsx-scope": "off",
@@ -30,7 +30,29 @@
 
     "unicorn/no-useless-undefined": ["error", { "checkArguments": false }],
 
-    "import/no-unassigned-import": "off"
+    "import/no-unassigned-import": "off",
+
+    "eslint/no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": [
+              "./*/**",
+              "!./shared/*",
+              "./shared/*/**",
+              "../*/**",
+              "!../shared/*",
+              "../shared/*/**",
+              "../../*/**",
+              "!../../shared/*",
+              "../../shared/*/**"
+            ],
+            "message": "Import another module through its index.ts (e.g. \"../auth\", \"../shared/db\"), never its internal files."
+          }
+        ]
+      }
+    ]
   },
   "overrides": [
     {

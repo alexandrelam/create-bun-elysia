@@ -1,18 +1,14 @@
+// Composition root: wires the feature modules into one Elysia app.
 import { Elysia } from "elysia";
-import { runMigrations } from "./db/migrate";
-import { auth } from "./lib/auth";
-import { staticWeb } from "./lib/static";
-import { todoRoutes } from "./routes/todos";
+import { authRoutes } from "./auth";
+import { runMigrations } from "./shared/db";
+import { staticWeb } from "./shared/static";
+import { todoRoutes } from "./todos";
 
 runMigrations();
 
-const authHandler = ({ request }: { request: Request }) => auth.handler(request);
-
 const api = new Elysia({ prefix: "/api" })
-  // Better Auth's endpoints (its default basePath is /api/auth). Explicit GET/POST rather than
-  // .all(): Elysia matches method-specific routes first, so the production static `GET /*` would win.
-  .get("/auth/*", authHandler, { parse: "none" })
-  .post("/auth/*", authHandler, { parse: "none" })
+  .use(authRoutes)
   .get("/health", () => ({ ok: true }))
   .use(todoRoutes);
 

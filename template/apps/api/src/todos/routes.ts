@@ -1,8 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { Elysia, t } from "elysia";
-import { db } from "../db";
-import { todos } from "../db/schema";
-import { authPlugin } from "../lib/auth";
+import { authPlugin } from "../auth";
+import { db, todos } from "../shared/db";
 
 /** Matches a todo only if it belongs to the given user. */
 const ownTodo = (id: number, userId: string) => and(eq(todos.id, id), eq(todos.userId, userId));
