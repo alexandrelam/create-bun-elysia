@@ -1,0 +1,17 @@
+{
+  "name": "create-bun-elysia",
+  "version": "0.1.0",
+  "description": "Scaffold a Bun monorepo: Elysia + Drizzle (SQLite) API and a React (Vite) frontend",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexandrelam/create-bun-elysia.git"
+  },
+  "bin": {
+    "create-bun-elysia": "./bin/create.ts"
+  },
+  "files": [
+    "bin",
+    "template"
+  ]
+}

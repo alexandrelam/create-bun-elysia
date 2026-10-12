@@ -1,0 +1,58 @@
+# create-bun-elysia
+
+One command to scaffold a Bun monorepo:
+
+- **apps/api**: [Elysia](https://elysiajs.com) + [Drizzle ORM](https://orm.drizzle.team) on SQLite (`bun:sqlite`, no native driver needed)
+- **apps/web**: React + Vite, with an end-to-end typed API client via [Eden Treaty](https://elysiajs.com/eden/overview)
+- Bun workspaces, shared `tsconfig.base.json`, a working todo example (CRUD, validation, migrations)
+
+Dependencies are **not pinned** in the template. The generator runs `bun add` for each package
+when it scaffolds, so every new project starts on the latest releases. It also warns you if a
+newer Bun is available.
+
+## Setup (once)
+
+```bash
+git clone https://github.com/alexandrelam/create-bun-elysia.git
+cd create-bun-elysia
+bun link
+bun add -g link:create-bun-elysia
+```
+
+This installs a `create-bun-elysia` shim in `~/.bun/bin` (`bun pm bin -g` prints the path). That
+folder must be on your `PATH`.
+
+On Windows, `bun add -g link:` can fail with `FileNotFound` and leave a dangling shim. If so,
+point the global package at this folder with a junction (PowerShell):
+
+```powershell
+New-Item -ItemType Junction -Path "$env:USERPROFILE\.bun\install\global\node_modules\create-bun-elysia" -Target (Get-Location)
+```
+
+Because it's a link, edits to `template/` take effect immediately; nothing to reinstall.
+
+## Usage
+
+```bash
+create-bun-elysia my-app
+```
+
+```bash
+cd my-app
+bun dev
+```
+
+Options:
+
+| Flag           | Effect                                         |
+| -------------- | ---------------------------------------------- |
+| `--no-install` | Only copy the template (skip `bun add` + migration) |
+| `--no-git`     | Skip `git init` and the initial commit         |
+
+Without the global link you can also run it directly: `bun path/to/project-boilerplate/bin/create.ts my-app`.
+
+## Customizing the template
+
+Edit anything in [`template/`](template). `__APP_NAME__` is replaced with the project name in every
+file. `template/gitignore` is renamed to `.gitignore` on copy. To add or remove dependencies,
+edit the `DEPS` list in [`bin/create.ts`](bin/create.ts).

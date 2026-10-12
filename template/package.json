@@ -1,0 +1,13 @@
+{
+  "name": "__APP_NAME__",
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "bun run --parallel --filter './apps/*' dev",
+    "build": "bun --filter './apps/*' build",
+    "typecheck": "bun --filter './apps/*' typecheck",
+    "db:generate": "bun --filter @__APP_NAME__/api db:generate",
+    "db:migrate": "bun --filter @__APP_NAME__/api db:migrate"
+  }
+}
