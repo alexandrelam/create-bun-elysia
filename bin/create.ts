@@ -16,10 +16,14 @@ const PLACEHOLDER = "__APP_NAME__";
 // Dependencies are installed at scaffold time so every new project gets the latest releases.
 const DEPS: { cwd: string; deps: string[]; dev: string[] }[] = [
   { cwd: ".", deps: [], dev: ["typescript", "@types/bun"] },
-  { cwd: "apps/api", deps: ["elysia", "drizzle-orm"], dev: ["drizzle-kit"] },
+  {
+    cwd: "apps/api",
+    deps: ["elysia", "drizzle-orm", "better-auth", "@better-auth/drizzle-adapter"],
+    dev: ["drizzle-kit"],
+  },
   {
     cwd: "apps/web",
-    deps: ["react", "react-dom", "@elysiajs/eden"],
+    deps: ["react", "react-dom", "@elysiajs/eden", "better-auth"],
     dev: ["vite", "@vitejs/plugin-react", "@types/react", "@types/react-dom"],
   },
 ];
@@ -117,6 +121,11 @@ const rootPkg = JSON.parse(await readFile(rootPkgPath, "utf8"));
 rootPkg.packageManager = `bun@${Bun.version}`;
 await writeFile(rootPkgPath, JSON.stringify(rootPkg, null, 2) + "\n");
 
+// Create the API's .env with a fresh Better Auth secret (.env is gitignored).
+const envExample = await readFile(join(target, "apps/api/.env.example"), "utf8");
+const secret = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString("base64");
+await writeFile(join(target, "apps/api/.env"), envExample.replace(/^BETTER_AUTH_SECRET=$/m, `BETTER_AUTH_SECRET=${secret}`));
+
 const bun = process.execPath;
 
 if (!flags.has("--no-install")) {
@@ -153,4 +162,8 @@ ${c.green("✔ Done!")} Next steps:
 
   Web: ${c.cyan("http://localhost:5173")}
   API: ${c.cyan("http://localhost:3000/api/health")}
+
+${c.yellow("Google sign-in:")} add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to ${name}/apps/api/.env
+  Create them at ${c.cyan("https://console.cloud.google.com/apis/credentials")} (OAuth client, Web application)
+  Authorized redirect URI: ${c.cyan("http://localhost:5173/api/auth/callback/google")}
 `);

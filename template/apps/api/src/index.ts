@@ -1,11 +1,13 @@
 import { Elysia } from "elysia";
 import { runMigrations } from "./db/migrate";
+import { authPlugin } from "./lib/auth";
 import { todoRoutes } from "./routes/todos";
 
 runMigrations();
 
-const app = new Elysia({ prefix: "/api" })
-  .get("/health", () => ({ ok: true }))
+const app = new Elysia()
+  .use(authPlugin)
+  .get("/api/health", () => ({ ok: true }))
   .use(todoRoutes)
   .listen(Number(process.env.PORT ?? 3000));
 

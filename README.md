@@ -3,8 +3,13 @@
 One command to scaffold a Bun monorepo:
 
 - **apps/api**: [Elysia](https://elysiajs.com) + [Drizzle ORM](https://orm.drizzle.team) on SQLite (`bun:sqlite`, no native driver needed)
+- **Auth**: [Better Auth](https://better-auth.com) with Google sign-in, sessions stored in SQLite, an `auth: true` route option in Elysia
 - **apps/web**: React + Vite, with an end-to-end typed API client via [Eden Treaty](https://elysiajs.com/eden/overview)
-- Bun workspaces, shared `tsconfig.base.json`, a working todo example (CRUD, validation, migrations)
+- Bun workspaces, shared `tsconfig.base.json`, a working per-user todo example (CRUD, validation, migrations)
+
+The generated `apps/api/.env` already contains a random `BETTER_AUTH_SECRET`. To enable Google
+sign-in, add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (the generated project's README walks
+through it).
 
 Dependencies are **not pinned** in the template. The generator runs `bun add` for each package
 when it scaffolds, so every new project starts on the latest releases. It also warns you if a

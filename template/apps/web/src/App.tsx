@@ -1,9 +1,52 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { client } from "./api";
+import { signIn, signOut, useSession } from "./auth";
 
 type Todo = NonNullable<Awaited<ReturnType<typeof client.api.todos.get>>["data"]>[number];
 
 export function App() {
+  const { data: session, isPending } = useSession();
+
+  return (
+    <main>
+      <header>
+        <div>
+          <h1>__APP_NAME__</h1>
+          <p className="muted">Bun · Elysia · Drizzle · SQLite · Better Auth · React</p>
+        </div>
+        {session && (
+          <div className="user">
+            {session.user.image && <img src={session.user.image} alt="" referrerPolicy="no-referrer" />}
+            <span>{session.user.name}</span>
+            <button className="link" onClick={() => signOut()}>
+              Sign out
+            </button>
+          </div>
+        )}
+      </header>
+
+      {isPending ? <p className="muted">Loading…</p> : session ? <Todos /> : <SignIn />}
+    </main>
+  );
+}
+
+function SignIn() {
+  const [error, setError] = useState<string | null>(null);
+
+  async function signInWithGoogle() {
+    const { error } = await signIn.social({ provider: "google", callbackURL: window.location.origin });
+    if (error) setError(error.message ?? "Sign-in failed. Is Google configured in apps/api/.env?");
+  }
+
+  return (
+    <section className="signin">
+      <button onClick={signInWithGoogle}>Sign in with Google</button>
+      {error && <p className="error">{error}</p>}
+    </section>
+  );
+}
+
+function Todos() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -38,10 +81,7 @@ export function App() {
   }
 
   return (
-    <main>
-      <h1>__APP_NAME__</h1>
-      <p className="muted">Bun · Elysia · Drizzle · SQLite · React</p>
-
+    <>
       <form onSubmit={add}>
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs doing?" />
         <button type="submit">Add</button>
@@ -62,6 +102,6 @@ export function App() {
           </li>
         ))}
       </ul>
-    </main>
+    </>
   );
 }
