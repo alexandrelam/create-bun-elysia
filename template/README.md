@@ -60,7 +60,7 @@ new Elysia({ prefix: "/me" })
   .get("/", ({ user }) => user, { auth: true }); // 401 when signed out
 ```
 
-Use `.guard({ auth: true })` to protect every route in a plugin, as `todos/routes.ts` does.
+Use `.guard({ auth: true })` to protect every route in a plugin, as the `todos` module does.
 Todos belong to the signed-in user.
 
 In the web app, the `auth` module (`apps/web/src/auth/`) exports `useSession`, `SignIn` and `UserMenu`.

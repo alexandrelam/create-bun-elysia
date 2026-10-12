@@ -19,34 +19,37 @@
   ],
   "rules": {
     "react/react-in-jsx-scope": "off",
-
     "eslint/max-lines": "off",
     "eslint/max-lines-per-function": "off",
     "eslint/max-statements": "off",
     "eslint/max-params": "off",
     "import/max-dependencies": "off",
-
     "eslint/no-inline-comments": "off",
-
-    "unicorn/no-useless-undefined": ["error", { "checkArguments": false }],
-
+    "unicorn/no-useless-undefined": [
+      "error",
+      {
+        "checkArguments": false
+      }
+    ],
     "import/no-unassigned-import": "off",
-
     "eslint/no-restricted-imports": [
       "error",
       {
         "patterns": [
           {
             "group": [
-              "./*/**",
+              "./[!.]*/**",
               "!./shared/*",
               "./shared/*/**",
-              "../*/**",
+              "../[!.]*/**",
               "!../shared/*",
               "../shared/*/**",
-              "../../*/**",
+              "../../[!.]*/**",
               "!../../shared/*",
-              "../../shared/*/**"
+              "../../shared/*/**",
+              "../../../[!.]*/**",
+              "!../../../shared/*",
+              "../../../shared/*/**"
             ],
             "message": "Import another module through its index.ts (e.g. \"../auth\", \"../shared/db\"), never its internal files."
           }
@@ -57,11 +60,15 @@
   "overrides": [
     {
       "files": ["apps/web/**"],
-      "env": { "browser": true }
+      "env": {
+        "browser": true
+      }
     },
     {
       "files": ["apps/api/**", "**/*.config.ts"],
-      "env": { "node": true }
+      "env": {
+        "node": true
+      }
     }
   ]
 }

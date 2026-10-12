@@ -27,7 +27,7 @@ Build **deep, modular features with simple interfaces**. Keep the architecture s
 
 1. **Deep modules, simple APIs.** Modules hide internal complexity behind small public interfaces. Callers know _what_ to call (e.g. `theme.toggle()`, `auth.login()`), not _how_ it works. Pull complexity downward: handle edge cases, defaults and internals inside the module, not at the call site.
 2. **Group by feature or domain concept** (e.g. `theme/`, `auth/`, `billing/`), not by file type (`controllers/`, `views/`). Keep a feature's components, state and helpers together in its folder.
-3. **Strict module boundaries.** Every module exposes one public entry point (`index.ts`). Code outside a module imports only from that top-level `index.ts`. Deep imports into another module's internal files are forbidden.
+3. **Strict module boundaries.** Every module exposes one public entry point (`index.ts`/`index.tsx`). Code outside a module imports only from that top-level index. Deep imports into another module's internal files are forbidden.
 4. **Shared vs. feature.** UI primitives, core utilities and global setup live in a dedicated `shared/` folder.
 
 How this maps onto the code:
@@ -35,7 +35,7 @@ How this maps onto the code:
 ```
 apps/api/src/
   index.ts        composition root: mounts feature routes under /api, serves the web build in prod
-  auth/           Better Auth instance, authRoutes (/api/auth/*), authPlugin ({ auth: true })
+  auth/           authRoutes (/api/auth/*), authPlugin ({ auth: true }); auth.ts = Better Auth instance
   todos/          todoRoutes
   shared/db/      db client, runMigrations, and ALL tables (schema/)
   shared/static/  staticWeb (production SPA serving)
@@ -46,10 +46,11 @@ apps/web/src/
   shared/api/     typed Eden client; shared/styles.css global styles
 ```
 
-- A module is a top-level folder in `src/` or a folder directly in `src/shared/`. Its `index.ts` is the only import target from outside (`"../auth"`, `"../shared/db"`). Inside a module, import siblings directly (`"./client"`).
-- **Lint enforces this.** `eslint/no-restricted-imports` in `.oxlintrc.json` rejects paths like `../auth/client` or `./shared/db/schema/auth`. When you need something internal, export it from the module's `index.ts` instead.
-- **Exception: tables.** They live in `shared/db/schema/`, not in their features. drizzle-kit loads the schema under Node (no `bun:sqlite`) to build one migration history, so table files must not import feature code. Features import their tables from `"../shared/db"`.
-- **New feature:** add a folder with an `index.ts`. In the API, export an Elysia plugin with its own prefix and `.use()` it in `src/index.ts`. Add its tables to `shared/db/schema/` and re-export them from `schema/index.ts`. In the web app, export the components and hooks that `App.tsx` needs.
+- **What a module is.** A top-level folder in `src/` or a folder directly in `src/shared/`. Its `index.ts` (`index.tsx` for a React component) is the only import target from outside (`"../auth"`, `"../shared/db"`). A single-file module keeps its code in the index itself. Inside a module, import sibling files directly (`"./client"`).
+- **Subfolders are modules too.** Any folder you import from, including one inside a feature (e.g. `todos/components/`), needs its own index and is imported as `"./components"`, never `"./components/List"`.
+- **Lint enforces this.** `eslint/no-restricted-imports` in `.oxlintrc.json` rejects any import that reaches into a folder past its index, such as `../auth/client` or `./shared/db/schema/auth`. It checks up to three `../` levels. When you need something internal, export it from that module's index instead of loosening the rule.
+- **Exception: tables** live in `shared/db/schema/`, not in their features. The reason is in `shared/db/index.ts`. Features import their tables from `"../shared/db"`.
+- **New feature:** add a folder with an index. In the API, export an Elysia plugin with its own prefix and `.use()` it in `src/index.ts`. Add its tables to `shared/db/schema/` and re-export them from `schema/index.ts`. In the web app, export the components and hooks that `App.tsx` needs.
 
 ## Architecture
 
@@ -57,8 +58,8 @@ Bun monorepo: `apps/api` (Elysia + Drizzle on `bun:sqlite` + Better Auth) and `a
 
 - **One origin in dev.** The browser only talks to Vite on :5173, which proxies `/api/*` to the API on :3000 (`apps/web/vite.config.ts`). Auth cookies are therefore same-origin; there is no CORS setup. `BETTER_AUTH_URL` is the browser-facing URL (`http://localhost:5173`), and the Google OAuth redirect URI is `http://localhost:5173/api/auth/callback/google`.
 - **End-to-end types without codegen.** `apps/api/src/index.ts` exports `type App` (the `/api` instance). The web app depends on `@__APP_NAME__/api` (workspace) and imports that type in `apps/web/src/shared/api/index.ts` for an Eden Treaty client, so `client.api.todos.get()` is typed from the Elysia route definitions. A route plugin only reaches the frontend's types once it is `.use()`d on the `api` instance.
-- **Auth.** `authPlugin` is an Elysia macro: a route or `.guard()` with `{ auth: true }` returns 401 when signed out and gets `user` and `session` in context. `authRoutes` registers explicit GET/POST handlers, not `.all()`, because Elysia matches method-specific routes first and the production static `GET /*` would otherwise shadow Better Auth. Google is only enabled when `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are set.
-- **Data ownership.** User-owned tables reference `user.id` with `onDelete: "cascade"`, and every query filters by the session user (see `ownTodo` in `todos/routes.ts`). Return `status(404)` rather than leaking that a row exists for another user.
+- **Auth.** `authPlugin` is an Elysia macro: a route or `.guard()` with `{ auth: true }` returns 401 when signed out and gets `user` and `session` in context. `authRoutes` must stay explicit GET/POST, not `.all()` (see the comment in `auth/index.ts`). Google is only enabled when `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are set.
+- **Data ownership.** User-owned tables reference `user.id` with `onDelete: "cascade"`, and every query filters by the session user (see `ownTodo` in `apps/api/src/todos/index.ts`). Return `status(404)` rather than leaking that a row exists for another user.
 - **Database.** SQLite at `DATABASE_URL` (default `data/app.db`, relative to `apps/api`) in WAL mode. `schema/auth.ts` is generated: don't hand-edit it, use `auth:generate`. After any schema change, run `db:generate` and commit the migration. Never edit existing migrations.
 - **Production.** Pushing to `main` runs `.github/workflows/deploy.yml`, which SSHes into the server and runs `update.sh`. That script resets to `origin/main`, rebuilds with docker compose, and waits for the container's healthcheck on `/api/health`. In the container, `WEB_DIST` is set and the API also serves the built web app with an SPA fallback to `index.html`. Production env lives in the root `.env` (from the root `.env.example`, read by compose). SQLite is at `/app/data/app.db` in the `db` volume. Setup steps: `.github/workflows/README-deploy.md`.
 - **Env (dev).** Bun auto-loads `apps/api/.env` (gitignored; `apps/api/.env.example` documents every key). `BETTER_AUTH_SECRET` was generated when the project was scaffolded.
