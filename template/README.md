@@ -60,6 +60,12 @@ In the web app, `src/auth.ts` exports `useSession`, `signIn` and `signOut` from 
 
 The SQLite file lives at `apps/api/data/app.db` (override with `DATABASE_URL` in `apps/api/.env`).
 
+## Deploy
+
+Pushing to `main` deploys to your server with GitHub Actions + Docker Compose. In production
+the API container also serves the built React app. One-time setup (server, env, HTTPS, GitHub
+secrets): [.github/workflows/README-deploy.md](.github/workflows/README-deploy.md).
+
 ## End-to-end types
 
 `apps/api/src/index.ts` exports `type App`. The web app imports it in `src/api.ts` and uses

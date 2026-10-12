@@ -1,0 +1,2 @@
+# LF everywhere, so shell scripts and the Dockerfile work on the Linux server even when committed from Windows.
+* text=auto eol=lf

@@ -1,0 +1,21 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: __APP_NAME__:latest
+    container_name: __APP_NAME__
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3000
+      DATABASE_URL: /app/data/app.db
+    # Bound to localhost: a reverse proxy (Caddy, nginx) on the host terminates HTTPS.
+    ports:
+      - "127.0.0.1:${HOST_PORT:-3000}:3000"
+    volumes:
+      # The SQLite database survives every rebuild.
+      - db:/app/data
+
+volumes:
+  db:

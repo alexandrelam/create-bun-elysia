@@ -148,6 +148,8 @@ if (!flags.has("--no-git") && Bun.which("git")) {
   console.log(`\n${c.cyan("◆")} Initializing git repository\n`);
   await run(["git", "init", "-q"], target);
   await run(["git", "add", "-A"], target);
+  // The deploy runs ./update.sh on the server; copying on Windows loses the executable bit.
+  await run(["git", "update-index", "--chmod=+x", "update.sh"], target);
   const commit = Bun.spawn(["git", "commit", "-q", "-m", "Initial commit from create-bun-elysia"], {
     cwd: target,
     stdout: "ignore",

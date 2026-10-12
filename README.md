@@ -6,6 +6,9 @@ One command to scaffold a Bun monorepo:
 - **Auth**: [Better Auth](https://better-auth.com) with Google sign-in, sessions stored in SQLite, an `auth: true` route option in Elysia
 - **apps/web**: React + Vite, with an end-to-end typed API client via [Eden Treaty](https://elysiajs.com/eden/overview)
 - Bun workspaces, shared `tsconfig.base.json`, a working per-user todo example (CRUD, validation, migrations)
+- **Deploy**: push to `main` → GitHub Actions SSHes into your VPS → `update.sh` rebuilds with Docker Compose
+  (one container serves API + frontend, SQLite in a volume). Setup guide ships in `.github/workflows/README-deploy.md`.
+- A `CLAUDE.md` describing the architecture and code organization rules
 
 The generated `apps/api/.env` already contains a random `BETTER_AUTH_SECRET`. To enable Google
 sign-in, add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (the generated project's README walks
