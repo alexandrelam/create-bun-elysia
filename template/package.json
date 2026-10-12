@@ -2,13 +2,31 @@
   "name": "__APP_NAME__",
   "private": true,
   "type": "module",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "bun run --parallel --filter './apps/*' dev",
     "build": "bun --filter './apps/*' build",
     "typecheck": "bun --filter './apps/*' typecheck",
+    "lint": "oxlint --deny-warnings",
+    "lint:fix": "oxlint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "bun run lint && bun run format:check && bun run typecheck",
     "db:generate": "bun --filter @__APP_NAME__/api db:generate",
     "db:migrate": "bun --filter @__APP_NAME__/api db:migrate",
-    "auth:generate": "bun --filter @__APP_NAME__/api auth:generate"
+    "auth:generate": "bun --filter @__APP_NAME__/api auth:generate",
+    "prepare": "husky || true"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "oxlint --deny-warnings",
+      "prettier --write"
+    ],
+    "*.{css,json,html,yml}": [
+      "prettier --write"
+    ]
   }
 }

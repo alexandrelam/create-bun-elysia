@@ -16,7 +16,7 @@ const PLACEHOLDER = "__APP_NAME__";
 
 // Dependencies are installed at scaffold time so every new project gets the latest releases.
 const DEPS: { cwd: string; deps: string[]; dev: string[] }[] = [
-  { cwd: ".", deps: [], dev: ["typescript", "@types/bun"] },
+  { cwd: ".", deps: [], dev: ["typescript", "@types/bun", "oxlint", "prettier", "husky", "lint-staged"] },
   {
     cwd: "apps/api",
     deps: ["elysia", "drizzle-orm", "better-auth", "@better-auth/drizzle-adapter"],
@@ -142,21 +142,27 @@ if (!flags.has("--no-install")) {
 
   console.log(`\n${c.cyan("◆")} Generating initial database migration\n`);
   await run([bun, "run", "db:generate"], join(target, "apps/api"));
+
+  // `bun add` rewrites package.json files; start from a tree the pre-commit hook accepts.
+  await run([bun, "run", "format"], target);
 }
 
 if (!flags.has("--no-git") && Bun.which("git")) {
   console.log(`\n${c.cyan("◆")} Initializing git repository\n`);
   await run(["git", "init", "-q"], target);
+  // `prepare` ran during install, before there was a repo to install the git hooks into.
+  if (!flags.has("--no-install")) await run([bun, "run", "prepare"], target);
   await run(["git", "add", "-A"], target);
   // The deploy runs ./update.sh on the server; copying on Windows loses the executable bit.
   await run(["git", "update-index", "--chmod=+x", "update.sh"], target);
+  // Runs the pre-commit hook (lint + typecheck), so the first commit is already clean.
   const commit = Bun.spawn(["git", "commit", "-q", "-m", "Initial commit from create-bun-elysia"], {
     cwd: target,
-    stdout: "ignore",
-    stderr: "ignore",
+    stdout: "inherit",
+    stderr: "inherit",
   });
   if ((await commit.exited) !== 0) {
-    console.log(c.yellow("  Skipped initial commit (configure git user.name/user.email to enable it)."));
+    console.log(c.yellow("  Initial commit failed (see above). Fix it, then commit yourself."));
   }
 }
 

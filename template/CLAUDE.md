@@ -7,12 +7,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Run from the repo root (Bun workspaces; each root script fans out with `bun --filter`):
 
 - `bun dev`: API (`bun --watch`, port 3000) and web (Vite, port 5173) in parallel
-- `bun run typecheck`: `tsc --noEmit` in both apps. There is no separate linter, so this is the check to run after changes.
+- `bun run check`: lint + format check + typecheck. Run it after changes; it's what the pre-commit hook enforces.
+- `bun run lint` / `bun run lint:fix`: oxlint with the `correctness`, `suspicious`, `pedantic` and `perf` categories as errors (`.oxlintrc.json`), `--deny-warnings`
+- `bun run format`: Prettier (`.prettierrc.json`; Markdown, migrations and the generated `schema/auth.ts` are ignored)
+- `bun run typecheck`: `tsc --noEmit` in both apps
 - `bun run build`: API bundle (`apps/api/dist`) + Vite build (`apps/web/dist`)
 - `bun run db:generate`: Drizzle migration from the schema diff, written to `apps/api/drizzle/`
 - `bun run db:migrate`: apply migrations (the API also applies them on every start)
 - `bun run auth:generate`: regenerate `apps/api/src/db/schema/auth.ts` with the Better Auth CLI after changing Better Auth plugins/config
 - Add a dependency to one app: `bun add <pkg> --cwd apps/api` (or `apps/web`)
+
+Husky's pre-commit hook (`.husky/pre-commit`) runs lint-staged (oxlint + Prettier on staged files) and then typechecks the whole workspace, since a staged file can break types in an unstaged one. Fix what it reports rather than bypassing it with `--no-verify`. Don't disable lint rules to get a commit through; restructure the code instead (e.g. derive state rather than `setState` in an effect).
 
 There is no test suite yet. Bun's built-in runner is `bun test` (single file: `bun test path/to/file.test.ts`).
 

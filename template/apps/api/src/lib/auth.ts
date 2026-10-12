@@ -10,7 +10,9 @@ const google =
     : undefined;
 
 if (!google) {
-  console.warn("⚠ GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET not set in apps/api/.env: Google sign-in is disabled.");
+  console.warn(
+    "⚠ GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET not set in apps/api/.env: Google sign-in is disabled.",
+  );
 }
 
 // BETTER_AUTH_SECRET and BETTER_AUTH_URL are read from the environment automatically.

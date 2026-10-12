@@ -13,9 +13,18 @@ export const todoRoutes = new Elysia({ prefix: "/todos" })
   .get("/", ({ user }) =>
     db.select().from(todos).where(eq(todos.userId, user.id)).orderBy(desc(todos.id)).all(),
   )
-  .post("/", ({ body, user }) => db.insert(todos).values({ ...body, userId: user.id }).returning().get(), {
-    body: t.Object({ title: t.String({ minLength: 1 }) }),
-  })
+  .post(
+    "/",
+    ({ body, user }) =>
+      db
+        .insert(todos)
+        .values({ ...body, userId: user.id })
+        .returning()
+        .get(),
+    {
+      body: t.Object({ title: t.String({ minLength: 1 }) }),
+    },
+  )
   .patch(
     "/:id",
     ({ params, body, user, status }) => {

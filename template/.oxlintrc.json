@@ -1,0 +1,45 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "promise", "react", "jsx-a11y"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "pedantic": "error",
+    "perf": "error"
+  },
+  "env": {
+    "builtin": true,
+    "es2024": true
+  },
+  "ignorePatterns": [
+    "dist/",
+    "node_modules/",
+    "apps/api/drizzle/",
+    "apps/api/src/db/schema/auth.ts"
+  ],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+
+    "eslint/max-lines": "off",
+    "eslint/max-lines-per-function": "off",
+    "eslint/max-statements": "off",
+    "eslint/max-params": "off",
+    "import/max-dependencies": "off",
+
+    "eslint/no-inline-comments": "off",
+
+    "unicorn/no-useless-undefined": ["error", { "checkArguments": false }],
+
+    "import/no-unassigned-import": "off"
+  },
+  "overrides": [
+    {
+      "files": ["apps/web/**"],
+      "env": { "browser": true }
+    },
+    {
+      "files": ["apps/api/**", "**/*.config.ts"],
+      "env": { "node": true }
+    }
+  ]
+}

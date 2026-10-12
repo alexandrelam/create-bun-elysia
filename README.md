@@ -8,6 +8,7 @@ One command to scaffold a Bun monorepo:
 - Bun workspaces, shared `tsconfig.base.json`, a working per-user todo example (CRUD, validation, migrations)
 - **Deploy**: push to `main` → GitHub Actions SSHes into your VPS → `update.sh` rebuilds with Docker Compose
   (one container serves API + frontend, SQLite in a volume). Setup guide ships in `.github/workflows/README-deploy.md`.
+- **Quality gate**: Husky pre-commit hook runs strict [oxlint](https://oxc.rs) + Prettier on staged files, then `tsc` on the whole workspace
 - A `CLAUDE.md` describing the architecture and code organization rules
 
 The generated `apps/api/.env` already contains a random `BETTER_AUTH_SECRET`. To enable Google

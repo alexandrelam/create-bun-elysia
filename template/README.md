@@ -16,9 +16,14 @@ packages/  (optional) shared workspace packages
 | `bun dev`                              | Run API (watch mode) and web (Vite HMR) together          |
 | `bun run build`                        | Build both apps                                           |
 | `bun run typecheck`                    | Type-check both apps                                      |
+| `bun run check`                        | Lint (oxlint, strict) + format check (Prettier) + typecheck |
+| `bun run lint:fix` / `bun run format`  | Auto-fix lint issues / format everything                  |
 | `bun run db:generate`                  | Generate a SQL migration after editing the schema         |
 | `bun run db:migrate`                   | Apply migrations (also runs automatically on API start)   |
 | `bun run auth:generate`                | Regenerate Better Auth tables after adding an auth plugin |
+
+Every commit runs a Husky pre-commit hook: oxlint and Prettier on the staged files, then a
+full typecheck. A lint or type error blocks the commit.
 
 ## Google sign-in setup
 

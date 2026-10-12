@@ -16,9 +16,11 @@ export function App() {
         </div>
         {session && (
           <div className="user">
-            {session.user.image && <img src={session.user.image} alt="" referrerPolicy="no-referrer" />}
+            {session.user.image && (
+              <img src={session.user.image} alt="" referrerPolicy="no-referrer" />
+            )}
             <span>{session.user.name}</span>
-            <button className="link" onClick={() => signOut()}>
+            <button type="button" className="link" onClick={() => signOut()}>
               Sign out
             </button>
           </div>
@@ -31,17 +33,24 @@ export function App() {
 }
 
 function SignIn() {
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function signInWithGoogle() {
-    const { error } = await signIn.social({ provider: "google", callbackURL: window.location.origin });
-    if (error) setError(error.message ?? "Sign-in failed. Is Google configured in apps/api/.env?");
+    const { error } = await signIn.social({
+      provider: "google",
+      callbackURL: window.location.origin,
+    });
+    if (error) {
+      setErrorMessage(error.message ?? "Sign-in failed. Is Google configured in apps/api/.env?");
+    }
   }
 
   return (
     <section className="signin">
-      <button onClick={signInWithGoogle}>Sign in with Google</button>
-      {error && <p className="error">{error}</p>}
+      <button type="button" onClick={signInWithGoogle}>
+        Sign in with Google
+      </button>
+      {errorMessage && <p className="error">{errorMessage}</p>}
     </section>
   );
 }
@@ -49,45 +58,65 @@ function SignIn() {
 function Todos() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  async function load() {
-    const { data, error } = await client.api.todos.get();
-    if (error) return setError(String(error.value));
-    setTodos(data);
-  }
-
+  // Load once; after that, each change updates the list from the API's response.
   useEffect(() => {
-    load();
+    let ignore = false;
+    async function load() {
+      const { data, error } = await client.api.todos.get();
+      if (ignore) return;
+      if (error) setErrorMessage(String(error.value));
+      else setTodos(data);
+    }
+    void load();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   async function add(e: FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
-    const { error } = await client.api.todos.post({ title: title.trim() });
-    if (error) return setError(String(error.value));
+    const { data, error } = await client.api.todos.post({ title: title.trim() });
+    if (error) {
+      setErrorMessage(String(error.value));
+      return;
+    }
+    setTodos((current) => [data, ...current]);
     setTitle("");
-    load();
   }
 
   async function toggle(todo: Todo) {
-    await client.api.todos({ id: todo.id }).patch({ done: !todo.done });
-    load();
+    const { data, error } = await client.api.todos({ id: todo.id }).patch({ done: !todo.done });
+    if (error) {
+      setErrorMessage(String(error.value));
+      return;
+    }
+    setTodos((current) => current.map((t) => (t.id === data.id ? data : t)));
   }
 
   async function remove(todo: Todo) {
-    await client.api.todos({ id: todo.id }).delete();
-    load();
+    const { error } = await client.api.todos({ id: todo.id }).delete();
+    if (error) {
+      setErrorMessage(String(error.value));
+      return;
+    }
+    setTodos((current) => current.filter((t) => t.id !== todo.id));
   }
 
   return (
     <>
       <form onSubmit={add}>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs doing?" />
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="What needs doing?"
+        />
         <button type="submit">Add</button>
       </form>
 
-      {error && <p className="error">{error}</p>}
+      {errorMessage && <p className="error">{errorMessage}</p>}
 
       <ul>
         {todos.map((todo) => (
@@ -96,7 +125,12 @@ function Todos() {
               <input type="checkbox" checked={todo.done} onChange={() => toggle(todo)} />
               <span className={todo.done ? "done" : ""}>{todo.title}</span>
             </label>
-            <button className="link" onClick={() => remove(todo)} aria-label={`Delete ${todo.title}`}>
+            <button
+              type="button"
+              className="link"
+              onClick={() => remove(todo)}
+              aria-label={`Delete ${todo.title}`}
+            >
               ✕
             </button>
           </li>
