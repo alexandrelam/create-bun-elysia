@@ -7,6 +7,7 @@
  * Usage: create-bun-elysia <project-name> [--no-install] [--no-git]
  */
 import { cp, readdir, readFile, rename, writeFile } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
 import { existsSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 
@@ -122,9 +123,12 @@ rootPkg.packageManager = `bun@${Bun.version}`;
 await writeFile(rootPkgPath, JSON.stringify(rootPkg, null, 2) + "\n");
 
 // Create the API's .env with a fresh Better Auth secret (.env is gitignored).
-const envExample = await readFile(join(target, "apps/api/.env.example"), "utf8");
-const secret = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString("base64");
-await writeFile(join(target, "apps/api/.env"), envExample.replace(/^BETTER_AUTH_SECRET=$/m, `BETTER_AUTH_SECRET=${secret}`));
+const secretLine = `BETTER_AUTH_SECRET=${randomBytes(32).toString("base64")}`;
+const envLines = (await readFile(join(target, "apps/api/.env.example"), "utf8")).trimEnd().split("\n");
+const secretIndex = envLines.findIndex((line) => line.startsWith("BETTER_AUTH_SECRET="));
+if (secretIndex === -1) envLines.push(secretLine);
+else envLines[secretIndex] = secretLine;
+await writeFile(join(target, "apps/api/.env"), envLines.join("\n") + "\n");
 
 const bun = process.execPath;
 
@@ -163,7 +167,6 @@ ${c.green("✔ Done!")} Next steps:
   Web: ${c.cyan("http://localhost:5173")}
   API: ${c.cyan("http://localhost:3000/api/health")}
 
-${c.yellow("Google sign-in:")} add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to ${name}/apps/api/.env
-  Create them at ${c.cyan("https://console.cloud.google.com/apis/credentials")} (OAuth client, Web application)
-  Authorized redirect URI: ${c.cyan("http://localhost:5173/api/auth/callback/google")}
+${c.yellow("Google sign-in:")} add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to apps/api/.env
+  (see "Google sign-in setup" in ${name}/README.md)
 `);

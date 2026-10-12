@@ -18,7 +18,7 @@ packages/  (optional) shared workspace packages
 | `bun run typecheck`                    | Type-check both apps                                      |
 | `bun run db:generate`                  | Generate a SQL migration after editing the schema         |
 | `bun run db:migrate`                   | Apply migrations (also runs automatically on API start)   |
-| `bun run --cwd apps/api auth:generate` | Regenerate Better Auth tables after adding an auth plugin |
+| `bun run auth:generate`                | Regenerate Better Auth tables after adding an auth plugin |
 
 ## Google sign-in setup
 
@@ -38,13 +38,13 @@ to your public URL and add the matching redirect URI in Google.
 
 ## Auth in the API
 
-`apps/api/src/lib/auth.ts` configures Better Auth and exports `authPlugin`, which serves
-`/api/auth/*` and adds an `auth` route option:
+`apps/api/src/lib/auth.ts` configures Better Auth (its endpoints are served under `/api/auth/*`
+in `src/index.ts`) and exports `authPlugin`, which adds an `auth` route option:
 
 ```ts
-new Elysia()
+new Elysia({ prefix: "/me" })
   .use(authPlugin)
-  .get("/api/me", ({ user }) => user, { auth: true }); // 401 when signed out
+  .get("/", ({ user }) => user, { auth: true }); // 401 when signed out
 ```
 
 Use `.guard({ auth: true })` to protect every route in a plugin, as `routes/todos.ts` does.

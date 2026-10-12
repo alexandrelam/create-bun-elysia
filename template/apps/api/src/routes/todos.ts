@@ -4,7 +4,10 @@ import { db } from "../db";
 import { todos } from "../db/schema";
 import { authPlugin } from "../lib/auth";
 
-export const todoRoutes = new Elysia({ prefix: "/api/todos" })
+/** Matches a todo only if it belongs to the given user. */
+const ownTodo = (id: number, userId: string) => and(eq(todos.id, id), eq(todos.userId, userId));
+
+export const todoRoutes = new Elysia({ prefix: "/todos" })
   .use(authPlugin)
   .guard({ auth: true })
   .get("/", ({ user }) =>
@@ -16,12 +19,7 @@ export const todoRoutes = new Elysia({ prefix: "/api/todos" })
   .patch(
     "/:id",
     ({ params, body, user, status }) => {
-      const todo = db
-        .update(todos)
-        .set(body)
-        .where(and(eq(todos.id, params.id), eq(todos.userId, user.id)))
-        .returning()
-        .get();
+      const todo = db.update(todos).set(body).where(ownTodo(params.id, user.id)).returning().get();
       return todo ?? status(404, "Todo not found");
     },
     {
@@ -35,11 +33,7 @@ export const todoRoutes = new Elysia({ prefix: "/api/todos" })
   .delete(
     "/:id",
     ({ params, user, status }) => {
-      const todo = db
-        .delete(todos)
-        .where(and(eq(todos.id, params.id), eq(todos.userId, user.id)))
-        .returning()
-        .get();
+      const todo = db.delete(todos).where(ownTodo(params.id, user.id)).returning().get();
       return todo ?? status(404, "Todo not found");
     },
     { params: t.Object({ id: t.Numeric() }) },

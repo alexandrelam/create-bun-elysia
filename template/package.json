@@ -8,6 +8,7 @@
     "build": "bun --filter './apps/*' build",
     "typecheck": "bun --filter './apps/*' typecheck",
     "db:generate": "bun --filter @__APP_NAME__/api db:generate",
-    "db:migrate": "bun --filter @__APP_NAME__/api db:migrate"
+    "db:migrate": "bun --filter @__APP_NAME__/api db:migrate",
+    "auth:generate": "bun --filter @__APP_NAME__/api auth:generate"
   }
 }
