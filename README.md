@@ -49,7 +49,7 @@ Options:
 | `--no-install` | Only copy the template (skip `bun add` + migration) |
 | `--no-git`     | Skip `git init` and the initial commit         |
 
-Without the global link you can also run it directly: `bun path/to/project-boilerplate/bin/create.ts my-app`.
+Without the global link you can also run it directly: `bun path/to/create-bun-elysia/bin/create.ts my-app`.
 
 ## Customizing the template
 
