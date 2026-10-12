@@ -56,3 +56,7 @@ Without the global link you can also run it directly: `bun path/to/project-boile
 Edit anything in [`template/`](template). `__APP_NAME__` is replaced with the project name in every
 file. `template/gitignore` is renamed to `.gitignore` on copy. To add or remove dependencies,
 edit the `DEPS` list in [`bin/create.ts`](bin/create.ts).
+
+## License
+
+[MIT](LICENSE)
