@@ -19,7 +19,7 @@ ssh <user>@<vps>
 mkdir -p ~/projects
 git clone git@github.com:<owner>/__APP_NAME__.git ~/projects/__APP_NAME__
 cd ~/projects/__APP_NAME__
-cp .env.example .env    # BETTER_AUTH_URL, secret, Google OAuth credentials, HOST_PORT
+cp .env.example .env    # BETTER_AUTH_URL (public URL), secret, Google OAuth credentials, HOST_PORT
 ./update.sh             # first deploy, by hand
 curl -s localhost:3000/api/health   # {"ok":true}
 ```

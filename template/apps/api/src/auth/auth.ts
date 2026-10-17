@@ -11,7 +11,7 @@ const google =
 
 if (!google) {
   console.warn(
-    "⚠ GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET not set in apps/api/.env: Google sign-in is disabled.",
+    "⚠ GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET not set in the root .env: Google sign-in is disabled.",
   );
 }
 
