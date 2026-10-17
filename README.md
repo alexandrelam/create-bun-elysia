@@ -11,7 +11,7 @@ One command to scaffold a Bun monorepo:
 - **Quality gate**: Husky pre-commit hook runs strict [oxlint](https://oxc.rs) + Prettier on staged files, then `tsc` on the whole workspace
 - A `CLAUDE.md` describing the architecture and code organization rules
 
-The generated `apps/api/.env` already contains a random `BETTER_AUTH_SECRET`. To enable Google
+The generated `.env` (at the project root) already contains a random `BETTER_AUTH_SECRET`. To enable Google
 sign-in, add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (the generated project's README walks
 through it).
 

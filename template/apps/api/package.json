@@ -6,12 +6,12 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "start": "bun src/index.ts",
+    "dev": "bun --env-file=../../.env --watch src/index.ts",
+    "start": "bun --env-file=../../.env src/index.ts",
     "build": "bun build src/index.ts --target bun --outdir dist",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "bun src/shared/db/migrate.ts",
-    "auth:generate": "bun x --bun auth@latest generate --config src/auth/auth.ts --output src/shared/db/schema/auth.ts --yes"
+    "db:migrate": "bun --env-file=../../.env src/shared/db/migrate.ts",
+    "auth:generate": "bun --env-file=../../.env x --bun auth@latest generate --config src/auth/auth.ts --output src/shared/db/schema/auth.ts --yes"
   }
 }

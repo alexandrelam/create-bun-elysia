@@ -30,7 +30,7 @@ full typecheck. A lint or type error blocks the commit.
 1. In the [Google Cloud console](https://console.cloud.google.com/apis/credentials), create an
    **OAuth client ID** of type **Web application**.
 2. Add the authorized redirect URI `http://localhost:5173/api/auth/callback/google`.
-3. Put the client ID and secret in `apps/api/.env`:
+3. Put the client ID and secret in the `.env` at the repo root:
    ```
    GOOGLE_CLIENT_ID=...
    GOOGLE_CLIENT_SECRET=...
@@ -71,7 +71,7 @@ In the web app, the `auth` module (`apps/web/src/auth/`) exports `useSession`, `
 2. `bun run db:generate` writes a new migration to `apps/api/drizzle/`
 3. Restart the API (or `bun run db:migrate`). Migrations are applied on startup.
 
-The SQLite file lives at `apps/api/data/app.db` (override with `DATABASE_URL` in `apps/api/.env`).
+The SQLite file lives at `apps/api/data/app.db` (override with `DATABASE_URL` in the root `.env`).
 
 ## Deploy
 

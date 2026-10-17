@@ -10,7 +10,7 @@ export function SignIn() {
       callbackURL: window.location.origin,
     });
     if (error) {
-      setErrorMessage(error.message ?? "Sign-in failed. Is Google configured in apps/api/.env?");
+      setErrorMessage(error.message ?? "Sign-in failed. Is Google configured in the root .env?");
     }
   }
 

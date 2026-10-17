@@ -122,13 +122,13 @@ const rootPkg = JSON.parse(await readFile(rootPkgPath, "utf8"));
 rootPkg.packageManager = `bun@${Bun.version}`;
 await writeFile(rootPkgPath, JSON.stringify(rootPkg, null, 2) + "\n");
 
-// Create the API's .env with a fresh Better Auth secret (.env is gitignored).
+// Create the root .env with a fresh Better Auth secret (.env is gitignored).
 const secretLine = `BETTER_AUTH_SECRET=${randomBytes(32).toString("base64")}`;
-const envLines = (await readFile(join(target, "apps/api/.env.example"), "utf8")).trimEnd().split("\n");
+const envLines = (await readFile(join(target, ".env.example"), "utf8")).trimEnd().split("\n");
 const secretIndex = envLines.findIndex((line) => line.startsWith("BETTER_AUTH_SECRET="));
 if (secretIndex === -1) envLines.push(secretLine);
 else envLines[secretIndex] = secretLine;
-await writeFile(join(target, "apps/api/.env"), envLines.join("\n") + "\n");
+await writeFile(join(target, ".env"), envLines.join("\n") + "\n");
 
 const bun = process.execPath;
 
@@ -175,6 +175,6 @@ ${c.green("✔ Done!")} Next steps:
   Web: ${c.cyan("http://localhost:5173")}
   API: ${c.cyan("http://localhost:3000/api/health")}
 
-${c.yellow("Google sign-in:")} add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to apps/api/.env
+${c.yellow("Google sign-in:")} add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env
   (see "Google sign-in setup" in ${name}/README.md)
 `);
